@@ -1,0 +1,156 @@
+﻿@using BlazorApp.Data
+@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="sidebarNarrow">
+        <NavMenuPlus />
+    </div>
+
+    <div class="main">
+        <div class="top-row px-4">
+
+            <div class="search">
+                <input type="text" id="number2" @bind="expression" style="width: 190px" placeholder="czego szukasz?">
+                <NavLink class="top-menu" href="@($"search/{expression}")" @onclick="e=>expression = null">
+                    <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
+                </NavLink>
+            </div>
+
+            <div class="upMenu">
+
+
+                <AuthorizeView>
+                    <Authorized>
+
+                        <div class="dropdown">
+                            <button data-toggle="dropdown" type="button" @onclick="e =>show=!show" @onfocusout="OutFocus"
+                                    aria-haspopup="true" aria-expanded="false" style="color: #f7f7f7; background:#f7f7f7; border:none; width:40px;
+                            outline:none; margin-left:5px;margin-right:5px;">
+                                <span class="oi oi-person" aria-hidden="true" style="margin-left:auto; margin-right:auto "> </span>
+                            </button>
+                            <div class="dropdown-menu @(show? "show":"")">
+                                <a class="dropdown-item" href="/account" style="background:rgba(255,255,255,0);">Konto</a>
+                                <a class="dropdown-item" href="/account/purchasestory" style="background:rgba(255,255,255,0);">Historia</a>
+                                <a class="dropdown-item" href="/account" style="background:rgba(255,255,255,0)">Wyloguj</a>
+                            </div>
+
+                        </div>
+                        <button @onclick="(()=>Navigator(2))" style="color: #f7f7f7; background:#f7f7f7; border:none; text-align:center; width:40px; outline:none; margin-left:5px;margin-right:5px">
+                            <span class="oi oi-heart" aria-hidden="true" style="margin-left:auto; margin-right:auto "> </span>
+                        </button>
+                        <button @onclick="(()=>Navigator(3))" class="button" style="color: #f7f7f7; background:#f7f7f7; border:none; text-align:center; width:40px; outline:none; margin-left:5px;margin-right:5px;">
+                            <span class="oi oi-bell" aria-hidden="true" style="margin-left:auto; margin-right:auto "> </span>
+                        </button>
+
+                        <button @onclick="@(e=>confirmLogOut=!confirmLogOut)" style="color:#f7f7f7; background:#f7f7f7; border:none; text-align:center; width:40px; outline:none; margin-left:5px;margin-right:5px">
+                            <span class="oi oi-account-logout" aria-hidden="true" style="display: block; margin-left: auto; margin-right: auto;"> </span>
+                        </button>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="dropdown">
+                            <button data-toggle="dropdown" type="button" @onclick="e =>show=!show" @onfocusout="OutFocus"
+                                    aria-haspopup="true" aria-expanded="false" style="color: #f7f7f7; background:#f7f7f7; border:none; width:40px;
+                            outline:none; margin-left:5px;margin-right:5px;">
+                                <span class="oi oi-person" aria-hidden="true" style="margin-left:auto; margin-right:auto "> </span>
+                            </button>
+                            <div class="dropdown-menu @(show? "show":"")">
+                                <a class="dropdown-item" href="/login" style="background:rgba(255,255,255,0);">Konto</a>
+                                <a class="dropdown-item" href="/login" style="background:rgba(255,255,255,0);">Historia</a>
+                                <a class="dropdown-item" href="/login" style="background:rgba(255,255,255,0)">Wyloguj</a>
+                            </div>
+
+                        </div>
+                        <button @onclick="(()=>Navigator(0))" style="color: #f7f7f7; background:#f7f7f7; border:none; text-align:center; width:40px; outline:none; margin-left:5px;margin-right:5px">
+                            <span class="oi oi-heart" aria-hidden="true" style="margin-left:auto; margin-right:auto "> </span>
+                        </button>
+                        <button @onclick="(()=>Navigator(3))" class="button" style="color: #f7f7f7; background:#f7f7f7; border:none; text-align:center; width:40px; outline:none; margin-left:5px;margin-right:5px;">
+                            <span class="oi oi-bell" aria-hidden="true" style="margin-left:auto; margin-right:auto "> </span>
+                        </button>
+                        <button @onclick="(()=>Navigator(0))" style="color:#f7f7f7; background:#f7f7f7; border:none; text-align:center; width:40px; outline:none; margin-left:5px;margin-right:5px">
+                            <span class="oi oi-account-login" aria-hidden="true" style="display: block; margin-left: auto; margin-right: auto;"> </span>
+                        </button>
+                    </NotAuthorized>
+                </AuthorizeView>
+
+            </div>
+        </div>
+
+        <div class="content px-4">
+            @Body
+
+            SHOW MA WARTOSC: @show
+            <button class="btn btn-primary" @onclick="e=>show=!show"></button>
+        </div>
+    </div>
+</div>
+
+<div hidden="@confirmLogOut" style="position: absolute; height: 100%; width: 100%; top: 0; left: 0; background:rgba(128 ,128 ,128, 0.8); z-index: 1;
+                                           display:flex; align-items:center; justify-content: center;vertical-align: middle;">
+    <div style="height:200px; width:400px; background:rgb(255 255 255); text-align: center; border-radius: 10px;margin:10px;vertical-align: middle;">
+        <div class="row h-100 justify-content-center align-items-center">
+            <span style="padding:20px; font-weight:bold">Czy na pewno chcesz się wylogować?</span>
+            <button class="btn btn-dark col-4" style="margin-right:10px" @onclick="@(e => Navigator(1))">Wyloguj</button>
+            <button class="btn btn-dark col-4" @onclick="@(e=>confirmLogOut=!confirmLogOut)">Anuluj</button>
+        </div>
+    </div>
+</div>
+
+<div hidden="@notificationLogOut" class="btn-dark row justify-content-center align-items-center" style="font-size:14px;position:fixed;width:150px;top:60px;right:5px;height:50px;z-index: 1;
+                                                margin-left:auto; margin-right:auto;text-align:center;border-radius:4px;">
+    Zostałes wylogowany
+</div>
+
+@code{
+    private bool show = false;
+    private bool confirmLogOut = true;
+    private bool notificationLogOut = true;
+
+    private string expression;
+
+    private async Task Navigator(int type)
+    {
+        if (type == 0) // widok logowania
+        {
+            navigationManager.NavigateTo("/login");
+        }
+        else if (type == 1) //wylogowanie
+        {
+            confirmLogOut = true;
+            ((LoginRegisterService)authenticationStateProvider).MarkUserLoggedOut();
+            navigationManager.NavigateTo("/");
+            await Notification();
+        }
+        else if (type == 2) // ulubione
+        {
+            navigationManager.NavigateTo("/followsauctions");
+        }
+        else if (type == 3) //powiadomienia 
+        {
+            navigationManager.NavigateTo("/notifications");
+        }
+    }
+
+    private async Task Notification()
+    {
+        notificationLogOut = false;
+        await Task.Delay(1000);
+        notificationLogOut = true;
+    }
+
+    protected override void OnParametersSet()
+    {
+        Console.WriteLine("ta funkcje wykorzystamy do autoryzacji");
+    }
+
+    private async Task OutFocus()
+    {
+        await Task.Delay(400);
+        show = false;
+    }
+}

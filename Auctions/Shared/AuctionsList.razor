@@ -1,0 +1,148 @@
+﻿@using BlazorApp.Data
+@using BlazorApp.Entities
+@using System.Security.Claims
+
+@inject DisplayAuctionsService service
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
+
+@if (auctionsList is not null)
+{
+    @foreach (var item in auctionsList)
+    {
+
+        <div class="media">
+            <a href="/auctions/@item.Id">
+                <img class="mr-3" src="@item.Images.Where(e=>e.Main == true).FirstOrDefault().ImageLocation" />
+            </a>
+            <div class="media-body">
+                <a href="/auctions/@item.Id" style="color:black;text-decoration:none; ">
+
+                    <div class="Title">
+                        @item.Title
+                    </div>
+
+
+
+
+                    <div class="Info">
+                        <small>
+                            Do końca aukcji pozostało:
+                            @if ((item.Date.AddDays(item.HowManyDays) - DateTime.Now).Days > 0)
+                            {
+                                @((item.Date.AddDays(item.HowManyDays) - DateTime.Now).Days) <span>dzień/dni</span>
+
+                            }
+                            else if ((item.Date.AddDays(item.HowManyDays) - DateTime.Now).Hours > 0)
+                            {
+                                @((item.Date.AddDays(item.HowManyDays) - DateTime.Now).Hours) <span>godzina/godziny</span>
+                            }
+                            else
+                            {
+                                @((item.Date.AddDays(item.HowManyDays) - DateTime.Now).Minutes) <span>minuta/minuty</span>
+                            }
+
+                            Lokalizacja: @item.Location
+                        </small>
+                    </div>
+
+                    <div class="BuyNowPrice">
+                        Kup Teraz: @item.BuyNowPrice zł
+                    </div>
+
+                    <div class="CurrentPrice">
+                        @if (item.Transaction.Count > 0)
+                        {
+                            <span>Obecna cena: @item.Transaction.Where(e => e.type == true).OrderByDescending(e => e.Id).FirstOrDefault().Price zł</span>
+                        }
+                        else
+                        {
+                            <span>Obecna cena: @item.StartPrice zł</span>
+                        }
+                    </div>
+                </a>
+                @if (type == 1)
+                {
+                    <AuthorizeView>
+                        <Authorized>
+
+                            @if (item.FollowAuction.FirstOrDefault(p => p.Follow == true) is not null)
+                            {
+                                <button class="customButton" @onclick="e => Follow(item.Id,userID,false)">
+
+                                    <div class="oi oi-heart" style="color: rgb(0,0,0)">
+                                    </div>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="customButton" @onclick="e => Follow(item.Id,userID,true) ">
+                                    <span class="oi oi-heart" style="text-shadow: 2px 2px #888888, -2px -2px #888888; color: rgb(200,200,200)">
+                                    </span>
+                                </button>
+                            }
+
+                        </Authorized>
+                        <NotAuthorized>
+                            <button class="customButton" @onclick="e => navigationManager.NavigateTo(navi)">
+                                <span class="oi oi-heart" style="text-shadow: 2px 2px #888888, -2px -2px #888888; color: rgb(200,200,200)">
+                                </span>
+                            </button>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                }
+            </div>
+        </div>
+
+    }
+
+    <div hidden="@notificationFollow" class="btn-dark row justify-content-center align-items-center" style="font-size:14px;position:fixed;width:150px;top:60px;right:5px;height:50px;z-index: 1;
+                                                margin-left:auto; margin-right:auto;text-align:center;border-radius:4px;">
+            Aukcje dodano do ulubionych</div>
+    
+    <div hidden="@notificationUnFollow" class="btn-dark row justify-content-center align-items-center" style="font-size:14px;position:fixed;width:150px;top:60px;right:5px;height:50px;z-index: 1;
+                                                margin-left:auto; margin-right:auto;text-align:center;border-radius:4px;">
+            Aukcje usunięto z ulubionych</div>
+}
+
+
+@code {
+    //e => navigationManager.NavigateTo(navi)
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    int userId = 0;
+    string navi = "/login";
+    bool notificationFollow = true;
+    bool notificationUnFollow = true;
+
+    [Parameter]
+    public List<Auctions> auctionsList { get; set; }
+    [Parameter]
+    public int userID { get; set; }
+    [Parameter]     //ten parametr okresla sytuacje, w ktorej zostal wywolany ten komponent. np. dla type = 0 nie chcemy widziec serduszka poniewaz oznacza, ze uzytkownik swoje aukcje wyswietlil
+    public int type { get; set; }
+
+    private async Task Notification(bool follow)
+    {
+        if(follow == true)
+        {
+            notificationFollow = !notificationFollow;
+        }
+        else
+        {
+            notificationUnFollow = !notificationUnFollow;
+        }
+        await Task.Delay(1000);
+        notificationFollow = true;
+        notificationUnFollow = true;
+    }
+
+    async Task Follow(int auctionId, int userId, bool follow) //follow okresla czy followujemy czy unfollowujemy zmieniamy wtedy tresc komunikatu
+    {
+        service.FollowAuction(auctionId, userId);
+        await Notification(follow);
+
+    }
+
+}

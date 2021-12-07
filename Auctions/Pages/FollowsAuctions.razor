@@ -1,0 +1,55 @@
+﻿@page "/followsauctions"
+
+@using System.IO
+@using BlazorApp.Data
+@using System.Security.Claims
+@using BlazorApp.Entities
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
+@inject AuctionsDbContext  auctionsDbContext
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject AddAuctionService Add
+@inject DisplayAuctionsService service
+
+
+<Authorization />
+
+<FiltersView filters="@filters" UpdateValue="UpdateFilters" ClearValue="ClearFilters"></FiltersView>
+
+<AuctionsList auctionsList="@service._auctions" userID="userId" type="1"></AuctionsList>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    List<string> imageUrls = new List<string>();
+    IReadOnlyList<IBrowserFile> selectedImage;
+    bool showfile = false;
+    string photo = "Images/obraz1_gif.png";
+    int userId = 0;
+    Filters filters = new Filters();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("ELO");
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            userId = int.Parse(Id);
+            service.GetFollowsAuctions(userId);
+        }
+    }
+
+    public void UpdateFilters(MouseEventArgs e)
+    {
+        service.FiltersAuctions(filters, userId);
+    }
+
+    public void ClearFilters(MouseEventArgs e)
+    {
+        filters = new Filters();
+        service.FiltersAuctions(filters, userId);
+    }
+}

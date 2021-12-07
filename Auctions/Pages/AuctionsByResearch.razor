@@ -1,0 +1,65 @@
+﻿@page "/search/{expression}"
+
+@using BlazorApp.Data
+@using BlazorApp.Entities
+@using System.Security.Claims
+@inject DisplayAuctionsService service
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
+
+
+<FiltersView filters="@filters" UpdateValue="UpdateFilters" ClearValue="ClearFilters"></FiltersView>
+
+<AuctionsList auctionsList="@service._auctions" userID="userId" type="1"></AuctionsList>
+
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    int userId = 0;
+    [Parameter]
+    public string expression { get; set; }
+    Filters filters = new Filters();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            userId = int.Parse(Id);
+            service.GetAuctionsBySearch(expression,userId);
+        }
+        else
+        {
+            service.GetAuctionsBySearch(expression);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (user.Identity.IsAuthenticated)
+        {
+            service.GetAuctionsBySearch(expression,userId);
+        }
+        else
+        {
+            service.GetAuctionsBySearch(expression);
+        }
+    }
+
+    public void UpdateFilters(MouseEventArgs e)
+    {
+        service.FiltersAuctions(filters, userId);
+    }
+
+    public void ClearFilters(MouseEventArgs e)
+    {
+        filters = new Filters();
+        service.FiltersAuctions(filters, userId);
+    }
+}

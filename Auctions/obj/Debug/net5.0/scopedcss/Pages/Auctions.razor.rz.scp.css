@@ -1,0 +1,89 @@
+.media[b-wq76p5ycwz]{
+  margin:10px 8% 10px 2%;
+  width:90%;
+  height:150px;
+  background: rgb(220 220 220);
+  border-radius: 10px;
+  color:black;
+  position:relative;
+ text-decoration:none;
+}
+    .media:hover[b-wq76p5ycwz] {
+        background: rgb(190 190 190);
+        text-decoration: none;
+    }
+
+.a[b-wq76p5ycwz]{
+    text-decoration:none;
+}
+    .a:hover[b-wq76p5ycwz] {
+        text-decoration: none;
+    }
+    
+.media-body[b-wq76p5ycwz]{
+    margin: 10px 0 10px 0;
+    position:relative;
+    height:85%;
+}
+
+.mr-3[b-wq76p5ycwz] {
+    margin: 10px 0 10px 10px;
+    height:130px; 
+    width:180px;
+}
+
+.Info[b-wq76p5ycwz] {
+    position: absolute;
+    width: 70%;
+    bottom:0;
+}
+
+.Title[b-wq76p5ycwz] {
+    width: 70%;
+    font-size: 26px;
+}
+
+
+.oi[b-wq76p5ycwz] {
+    font-size: 30px;
+
+}
+.customButton[b-wq76p5ycwz] {
+    width: 30px;
+    height: 30px;
+    top: 95px;
+    right: 2%;
+    position: absolute;
+    margin-right: 10px;
+    background: rgba(0,0,0,0);
+    border:none;
+    outline:none;
+}
+
+.BuyNowPrice[b-wq76p5ycwz] {
+    position: absolute;
+    height: 30px;
+    top: 35px;
+    right: 1.5%;
+    font-size: 20px;
+}
+
+.CurrentPrice[b-wq76p5ycwz] {
+    position: absolute;
+    height: 30px;
+    top: 0;
+    right: 1.5%;
+    font-size:20px;
+}
+
+@media (max-width: 717.98px) {
+    .Description[b-wq76p5ycwz]{
+        visibility:hidden;
+    }
+    .Title[b-wq76p5ycwz]{
+        font-size:20px;
+    }
+    .Info[b-wq76p5ycwz]{
+        font-size:14px;
+    }
+}

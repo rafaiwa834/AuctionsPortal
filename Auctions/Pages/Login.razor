@@ -1,0 +1,58 @@
+﻿@page "/login"
+
+@using BlazorApp.Data
+@using BlazorApp.Entities
+@using BlazorApp.Models
+
+@inject AuthenticationStateProvider authenticationStateProvider
+
+
+<h3>Zaloguj się</h3>
+<EditForm Model="@user" OnValidSubmit="@ValidateUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="form-group  col-md-3">
+            <label for="Title">Email</label>
+            <InputText class="form-control" id="Email" @bind-Value="user.Email" placeholder="Email" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="BuyNowPrice">Password</label>
+            <InputText class="form-control" type="password" id="Password" @bind-Value="user.PasswordHash" placeholder="Password" />
+        </div>
+    </div>
+
+    <div class="form-group col-md-3">
+        <button class="btn btn-dark btn-lg btn-block" @onsubmit="ValidateUser">Zaloguj się</button>
+    </div>
+</EditForm>
+@if (!valid)
+{
+    <p style="color:red">Wprowadzone dane są nieprawidłowe</p>
+}
+<NavLink class="nav-link" href="/register">
+    <span class="oi oi-plus" aria-hidden="true">Rejestracja</span>
+</NavLink>
+
+@code{
+    private UserLog user;
+    private bool valid = true;
+
+    protected override Task OnInitializedAsync()
+    {
+        user = new UserLog();
+        return base.OnInitializedAsync();
+    }
+
+    private async Task<bool> ValidateUser()
+    {
+
+        valid = await ((LoginRegisterService)authenticationStateProvider).MarkUserAsAuthenticated(user);
+
+        return await Task.FromResult(true);
+
+    }
+}

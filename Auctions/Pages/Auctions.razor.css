@@ -1,0 +1,89 @@
+﻿.media{
+  margin:10px 8% 10px 2%;
+  width:90%;
+  height:150px;
+  background: rgb(220 220 220);
+  border-radius: 10px;
+  color:black;
+  position:relative;
+ text-decoration:none;
+}
+    .media:hover {
+        background: rgb(190 190 190);
+        text-decoration: none;
+    }
+
+.a{
+    text-decoration:none;
+}
+    .a:hover {
+        text-decoration: none;
+    }
+    
+.media-body{
+    margin: 10px 0 10px 0;
+    position:relative;
+    height:85%;
+}
+
+.mr-3 {
+    margin: 10px 0 10px 10px;
+    height:130px; 
+    width:180px;
+}
+
+.Info {
+    position: absolute;
+    width: 70%;
+    bottom:0;
+}
+
+.Title {
+    width: 70%;
+    font-size: 26px;
+}
+
+
+.oi {
+    font-size: 30px;
+
+}
+.customButton {
+    width: 30px;
+    height: 30px;
+    top: 95px;
+    right: 2%;
+    position: absolute;
+    margin-right: 10px;
+    background: rgba(0,0,0,0);
+    border:none;
+    outline:none;
+}
+
+.BuyNowPrice {
+    position: absolute;
+    height: 30px;
+    top: 35px;
+    right: 1.5%;
+    font-size: 20px;
+}
+
+.CurrentPrice {
+    position: absolute;
+    height: 30px;
+    top: 0;
+    right: 1.5%;
+    font-size:20px;
+}
+
+@media (max-width: 717.98px) {
+    .Description{
+        visibility:hidden;
+    }
+    .Title{
+        font-size:20px;
+    }
+    .Info{
+        font-size:14px;
+    }
+}

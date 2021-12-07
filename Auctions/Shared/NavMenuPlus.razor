@@ -1,0 +1,81 @@
+﻿@using BlazorApp.Data
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">BlazorApp</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="auctions">
+                <span class="oi oi-transfer" aria-hidden="true"></span> Aukcje
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="calculator">
+                <span class="oi oi-calculator" aria-hidden="true"></span> Calculator
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            </NavLink>
+        </li>
+        <AuthorizeView>
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="addauction">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Dodaj Aukcje
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="account">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Konto
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="login" @onclick="Logout">
+                        <span class="oi oi-account-logout" aria-hidden="true"></span> Wyloguj
+                    </NavLink>
+                </li>
+            </Authorized>
+            <NotAuthorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> Zaloguj
+                    </NavLink>
+                </li>
+            </NotAuthorized>
+        </AuthorizeView>
+
+                
+</ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    public void Logout()
+    {
+        collapseNavMenu = !collapseNavMenu;
+        ((LoginRegisterService)authenticationStateProvider).MarkUserLoggedOut();
+
+    }
+}

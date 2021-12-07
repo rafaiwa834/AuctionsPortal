@@ -1,0 +1,144 @@
+﻿@page "/addauction"
+
+@using System.IO
+@using BlazorApp.Data
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore;
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
+@inject AuctionsDbContext  auctionsDbContext
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject AddAuctionService Add
+
+
+<Authorization />
+
+<h3>Dodaj nową akucje</h3>
+<EditForm Model="Add.add" OnValidSubmit="@Add.AddNewAuction">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="form-group  col-md-3">
+            <label for="Title">Tytul</label>
+            <InputText class="form-control" id="Title" @bind-Value="Add.add.Title" placeholder="Tytuł" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="BuyNowPrice">Cena Kup Teraz</label>
+            <InputNumber class="form-control" id="BuyNowPrice" @bind-Value="Add.add.BuyNowPrice" />
+        </div>
+
+        <div class="form-group col-md-3">
+            <label for="StartPrice">Cena startowa</label>
+            <InputNumber class="form-control" id="StartPrice" @bind-Value="Add.add.StartPrice" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="email">E-mail</label>
+            <InputText class="form-control" id="email" @bind-Value="Add.add.email" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="Title">Telefon</label>
+            <InputNumber class="form-control" id="phone" @bind-Value="Add.add.phone" />
+        </div>
+
+        <div class="form-group col-md-3">
+            <label for="Location">Lokalizacja</label>
+            <InputText class="form-control" id="Location" @bind-Value="Add.add.Location" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label for="Description">Opis Aukcji</label>
+            <InputTextArea class="form-control" id="Description" @bind-Value="Add.add.Description" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="category">Kategoria</label>
+            <InputSelect class="form-control" id="category" @bind-Value="Add.add.categoryId">
+                @foreach (var item in Add.categories)
+                {
+                    <option value="@item.Id">@item.Category</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label for="HowManyDays">Czas Trwania (Dni): @Add.add.HowManyDays</label>
+            <input type="range" class="form-control-range" min="1" max="90" label="numer" aria-label="numer" id="HowManyDays" @bind="Add.add.HowManyDays" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label class="form-label">Dodaj Zdjęcia</label>
+            <Microsoft.AspNetCore.Components.Forms.InputFile style="border:none; outline:none; background:rgba(0,0,0,0)" OnChange="Add.OnInputFileChange" multiple />
+        </div>
+    </div>
+
+    <div class="image-list">
+
+        @foreach (var image in Add.imageTry)
+        {
+            if (Add.MAINPHOTO == image.Value)
+            {
+                <button type="button" @onclick="()=>Add.MAINPHOTO=image.Value" style=" background:rgb(255 255 255); margin:5px; outline: 0">
+                    <img src="@image.Key" />
+                </button>
+            }
+            else
+            {
+                <button type="button" @onclick="()=>Add.MAINPHOTO=image.Value" style="background: rgb(255 255 255); border: none; margin: 5px; outline: 0; opacity:0.6">
+                    <img src="@image.Key" />
+                </button>
+            }
+
+
+        }
+    </div>
+    <font color="red">@Add.photoValidator</font>
+
+    <div class="form-group col-md-6">
+        <button class="btn btn-dark btn-lg btn-block" @onsubmit="Add.AddNewAuction">Dodaj Aukcje</button>
+    </div>
+</EditForm>
+
+
+
+@code{
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    List<string> imageUrls = new List<string>();
+    IReadOnlyList<IBrowserFile> selectedImage;
+    bool showfile = false;
+    string photo = "Images/obraz1_gif.png";
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            Add.add.userID = int.Parse(Id);
+        }
+
+    }
+
+
+}
+
+
+

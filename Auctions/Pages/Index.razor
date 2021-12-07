@@ -1,0 +1,41 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Web
+@using System.Security.Claims
+@using System.IO
+@using BlazorApp.Entities
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
+@inject AuctionsDbContext auctionsDbContext
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<FiltersView filters="@filters" UpdateValue="UpdateFilters"></FiltersView>
+
+@filters.PriceFrom @filters.PriceTo @filters.CategoryId @filters.City @filters.BuyNow
+
+<Authorization />
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<AuthorizeView>
+    <Authorized>
+        @foreach (var item in @context.User.Claims.ToList())
+        {
+            <p>@item.Value</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You are signed out!!</p>
+    </NotAuthorized>
+</AuthorizeView>
+<AuthorizeView Roles="Admin">
+    <p>JESTES ADMINEM ZIOM!!!%!!!</p>
+</AuthorizeView>
+
+
+
+@code{
+    Filters filters = new Filters();
+
+    public void UpdateFilters(MouseEventArgs e)
+    {
+    }
+
+}

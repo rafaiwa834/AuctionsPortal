@@ -1,0 +1,52 @@
+﻿@page "/account/myauctions"
+@using BlazorApp.Data
+@using BlazorApp.Entities
+@using System.Security.Claims
+@inject DisplayAuctionsService service
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
+
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item" style="color:black">
+                <a class="nav-link" href="/account" style="color:black">Konto</a>
+            </li>
+            <li class="nav-item" style="color:black">
+                <a class="nav-link active" href="/account/myauctions" style="color:black">Moje Aukcje</a>
+            </li>
+            <li class="nav-item" style="color:black">
+                <a class="nav-link" href="/account/purchasestory" style="color:black">Historia zakupów</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-body">
+
+        <AuctionsList auctionsList="@service._auctions" userID="userId" type="0"></AuctionsList>
+
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    int userId = 0;
+
+    Filters filters = new Filters();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            userId = int.Parse(Id);
+            service.GetAuctionsByUser(userId);
+        }
+    }
+}

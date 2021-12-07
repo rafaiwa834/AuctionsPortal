@@ -1,0 +1,150 @@
+﻿@page "/notifications/{id:int}"
+@using BlazorApp.Data
+@using System.Security.Claims
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject MessagesService messagesService
+
+
+
+
+    <div class="over718 align-items-center" style="height:35px;width:100%;font-size:18px; background:white; font-weight:bold; border-bottom:ridge; border-width:5px; margin-bottom:10px; position:fixed; top:55px; left:180px; z-index:1">
+        <span style="padding-left:20px">@messagesService.user.FirstName @messagesService.user.LastName</span>
+    </div>
+    <div class="under718 align-items-center" style="height:35px;width:100%;font-size:18px; background:white; font-weight:bold; border-bottom:ridge; border-width:5px; margin-bottom:10px; position:fixed; top:55px; left:0px; z-index:1">
+        <span style="padding-left:20px">@messagesService.user.FirstName @messagesService.user.LastName</span>
+    </div>
+
+    <div style="width:100%; background:white; height:15px"></div>
+
+    @foreach (var item in messagesService.messages)
+    {
+        if (item.senderId == userId)
+        {
+
+            <div class="row w-100 rounded p-1" style=" height: 100px;">
+
+                <div class="col-6" style="background:white"></div>
+                <div class="col-5 rounded-left" style="background: rgb(230 230 230);">
+                    <div class="rounded align-items-center" style=" font-size:14px;padding-left:10px">
+                        @item.message
+                    </div>
+                </div>
+
+                <div class="col-1 rounded-right" style="background: rgb(230 230 230);">
+                    <div class="row h-50 justify-content-end align-items-center rounded">
+                        <span style="font-weight:bold; font-size:14px;padding-right:10px">@item.postDate.ToString("g")</span>
+                    </div>
+                    <div class="row h-50 justify-content-end align-items-center" style="padding-right: 10px">
+                        <span class="oi oi-person"></span>
+                    </div>
+                </div>
+
+            </div>
+        }
+
+        else
+        {
+
+
+            <div class="row w-100 rounded p-1" style=" height: 100px;">
+
+                <div class="col-5 rounded-left" style="background: rgb(12 27 194); color:white;">
+                    <div class="rounded align-items-center" style=" font-size:14px;padding-left:10px">
+                        @item.message
+                    </div>
+                </div>
+
+                <div class="col-1 rounded-right" style="background: rgb(12 27 194); color:white;">
+                    <div class="row h-50 justify-content-end align-items-center rounded">
+                        <span style="font-weight:bold; font-size:14px;padding-right:10px">@item.postDate.ToString("g")</span>
+                    </div>
+                    <div class="row h-50 justify-content-end align-items-center" style="padding-right: 10px">
+                        <span class="oi oi-person"></span>
+                    </div>
+                </div>
+
+                <div class="col-6" style="background:white"></div>
+
+            </div>
+        }
+
+
+    }
+
+    <div class="lastMessage" style="width:100%; height:50px; background:white"></div>
+
+    <div class="over718 col-12" style="height:50px; position:fixed;bottom:0;left:180px; background:white; z-index:1; border-top:ridge;">
+        <div class="row col-12 h-100 p-2">
+
+            <div class="col-10 h-100 align-items-center justify-content-center" style="background:white">
+                <input class="col-12" type="text" style="background: rgb(220 220 220); border-radius:5px" placeholder="Aaaa..." @bind="message" />
+            </div>
+
+            <div class="col-2 h-100 align-items-center justify-content-center" style="background:white">
+                <button style="background:white;border:none; outline:none;" @onclick="e=>SendMessage()">
+                    <span class="oi oi-envelope-closed" style="color:black;font-size:30px"></span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="under718 col-12" style="height:50px; position:fixed;bottom:0;left:0; background:white;z-index:1; border-top:ridge;">
+        <div class="row h-100 p-2 position-relative">
+
+            <div class="col-10 h-100 align-items-center justify-content-center" style="background:yellow">
+                <input class="col-12" type="text" style="background: rgb(220 220 220); border-radius:5px" placeholder="Aaaa..." @bind="message" />
+            </div>
+
+            <div class="col-2 h-100 align-items-center justify-content-center" style="background:pink">
+                <button style="background:white;border:none; outline:none;" @onclick="e=>SendMessage()">
+                    <span class="oi oi-envelope-closed" style="color:black;font-size:30px"></span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div hidden="@notificationSendMessage" class="btn-dark row justify-content-center align-items-center" style="font-size:14px;position:fixed;width:150px;top:60px;right:5px;height:50px;z-index: 1;
+                                                margin-left:auto; margin-right:auto;text-align:center;border-radius:4px;">
+        Pomyślnie wysłano wiadomość
+    </div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    int userId = 0;
+    string message;
+    bool notificationSendMessage = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            userId = int.Parse(Id);
+            messagesService.GetConversation(id,userId);
+
+        }
+        else
+        {
+            messagesService.GetConversation(id, 1011);
+        }
+    }
+
+
+    async Task SendMessage()
+    {
+        notificationSendMessage = false;
+        messagesService.SendMessage(userId, message);
+        message = "";
+        await Task.Delay(1500);
+        notificationSendMessage = true;
+        messagesService.GetConversation(id, userId);
+    }
+}

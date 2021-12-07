@@ -1,0 +1,56 @@
+﻿@page "/register"
+
+@using BlazorApp.Data
+@using BlazorApp.Entities
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<h3>Stwórz nowe konto</h3>
+<EditForm Model="@user" OnValidSubmit="@Add">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="form-group  col-md-3">
+            <label for="Title">Email</label>
+            <InputText class="form-control" id="Email" @bind-Value="user.Email" placeholder="Email" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="BuyNowPrice">Password</label>
+            <InputText class="form-control" id="Password" @bind-Value="user.PasswordHash" placeholder="Password" />
+        </div>
+
+        <div class="form-group col-md-3">
+            <label for="StartPrice">FirstName</label>
+            <InputText class="form-control" id="FirstName" @bind-Value="user.FirstName" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="email">LastName</label>
+            <InputText class="form-control" id="LastName" @bind-Value="user.LastName" />
+        </div>
+    </div>
+
+    <div class="form-group col-md-6">
+        <button class="btn btn-dark btn-lg btn-block" @onsubmit="Add">Utwórz konto</button>
+    </div>
+</EditForm>
+
+@code{
+    private User user;
+
+    protected override Task OnInitializedAsync()
+    {
+        user = new User() { RoleId = 5 };
+        return base.OnInitializedAsync();
+    }
+
+    private async Task<bool> Add()
+    {
+        ((LoginRegisterService)authenticationStateProvider).AddUser(user);
+        return await Task.FromResult(true);
+    }
+}

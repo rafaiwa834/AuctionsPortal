@@ -1,0 +1,93 @@
+﻿@using BlazorApp.Entities
+@inject AuctionsDbContext  auctionsDbContext
+
+<div style="width:100%;margin-bottom:30px;border-bottom:ridge;">
+    <EditForm Model="filters">
+        <div class="row">
+
+            <div class="form-group col-auto" style="width:240px;">
+                <label for="Price" style="margin-left: 10px;">Cena (od-do)</label>
+                <div class="row" style="margin-left: 10px;">
+                    <input class="form-control" style="width:100px;margin-right:5px;" type="number" id="Price" placeholder="Od" @onchange="SetFrom" />
+                    <input class="form-control" style="width:100px" type="number" id="Price" placeholder="Do" min="@(filters.PriceFrom+1)" @onchange="SetTo" />
+                </div>
+            </div>
+
+            <div class="form-group col-auto" style="width:240px">
+                <label for="inputState" class="form-label">Miejscowosc</label>
+                <InputSelect id="inputState" class="form-control" @bind-Value="filters.City">
+                    <option selected>Brak</option>
+                    @foreach (var item in auctionsDbContext.Auctions.Select(p=>p.Location).Distinct().ToList())
+                    {
+                        <option>@item</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group col-auto" style="width:240px">
+                <label for="inputState" class="form-label">Kategoria</label>
+                <InputSelect id="inputState" class="form-control" @bind-Value="filters.CategoryId">
+                    <option value=0 selected>Brak</option>
+                    @foreach (var item in auctionsDbContext.Categories.ToList())
+                    {
+                        <option value="@item.Id">@item.Category</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group col-auto">
+
+                <label class="form-label" for="gridCheck">Kup Teraz</label>
+                <InputCheckbox class="form-control" type="checkbox" id="gridCheck" @bind-Value="filters.BuyNow" />
+
+            </div>
+
+            <div class="form-group col-auto">
+                <label class="form-label" style="color:white"> help </label>
+                <button class="btn btn-dark form-control" @onclick="UpdateEvent">Filtruj</button>
+            </div>
+
+            <div class="form-group col-auto">
+                <label class="form-label" style="color:white"> help </label>
+                <button class="btn btn-dark form-control" @onclick="ClearFilters">Usuń filtry</button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+@code {
+    [Parameter]
+    public Filters filters { get; set; }
+    [Parameter]
+    public EventCallback<MouseEventArgs> UpdateValue { get; set; }
+    [Parameter]
+    public EventCallback<MouseEventArgs> ClearValue { get; set; }
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    filters = new Filters();
+    //}
+
+    public async Task ClearFilters(MouseEventArgs e)
+    {
+        filters = new Filters();
+        await ClearValue.InvokeAsync(e);
+    }
+
+    public async Task UpdateEvent(MouseEventArgs e)
+    {
+        await UpdateValue.InvokeAsync(e);
+    }
+
+    void SetFrom(ChangeEventArgs args)
+    {
+        filters.PriceFrom = int.Parse((string)args.Value);
+    }
+
+    void SetTo(ChangeEventArgs args)
+    {
+        if (args != null)
+        {
+            filters.PriceTo = int.Parse((string)args.Value);
+        }
+    }
+}

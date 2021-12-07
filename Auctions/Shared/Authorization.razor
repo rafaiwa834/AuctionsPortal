@@ -1,0 +1,32 @@
+﻿@using BlazorApp.Data
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore;
+
+@inject AuctionsDbContext  auctionsDbContext
+@inject AuthenticationStateProvider authenticationStateProvider
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            var date = claims[1].Value;
+
+            var userDt = auctionsDbContext.Users.Include(p=>p.CurrentLog).FirstOrDefault(u => u.Id.ToString() == Id);
+
+            if (date != userDt.CurrentLog.Date.ToString())
+            {
+                ((LoginRegisterService)authenticationStateProvider).MarkUserLoggedOut();
+            }
+        }
+
+    }
+}

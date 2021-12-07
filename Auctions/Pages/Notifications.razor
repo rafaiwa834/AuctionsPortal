@@ -1,0 +1,61 @@
+﻿@page "/notifications"
+@using BlazorApp.Data
+@using System.Security.Claims
+
+@inject MessagesService messageService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
+
+@if (messageService.messages != null)
+{
+    foreach (var item in messageService.messages)
+    {
+        <a href="/notifications/@item.Id" style="color:black;text-decoration:none; ">
+            <div class="row w-100 rounded" style="background: rgb(220 220 220); height: 100px;">
+
+                <div class="col-10 rounded" s>
+                    <div class="row h-25 rounded">
+                        <span style="font-weight:bold; font-size:16px;padding-left:5px;padding-top:5px">@item.title</span>
+                    </div>
+                    <div class="row h-75 rounded align-items-center" style=" font-size:14px;padding-left:10px">
+                        @item.message
+                    </div>
+                </div>
+
+                <div class="col-2 rounded">
+                    <div class="row h-50 justify-content-end align-items-center rounded">
+                        <span style="font-weight:bold; font-size:14px;padding-right:10px">@item.postDate.ToString("g")</span>
+                    </div>
+                    <div class="row h-50 justify-content-end align-items-center" style="padding-right: 10px">
+                        <span class="oi oi-person"></span>
+                    </div>
+                </div>
+
+            </div>
+        </a>
+    }
+}
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    int userId;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            userId = int.Parse(Id);
+            messageService.GetMessages(userId);
+        }
+        else
+        {
+            messageService.GetMessages(1011);
+        }
+    }
+}

@@ -1,0 +1,23 @@
+﻿@page "/calculator/{number:int?}"
+
+
+
+<h5>Here you can add two values</h5>
+<div class="form-group">
+    <label for="number1">Number 1</label>
+    <input type="number" class="form-control" id="Number" @bind="Number">
+</div>
+<div class="form-group">
+    <label for="number2">Number 2</label>
+    <input type="number" class="form-control" id="number2" @bind="number2">
+</div>
+<div class="form-group">
+</div>
+<button class="btn btn-primary" @onclick="Add">Add</button>
+<button class="btn btn-primary" @onclick="Clear">Clear</button>
+
+
+@code {
+   
+
+}

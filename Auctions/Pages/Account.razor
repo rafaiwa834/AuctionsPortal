@@ -1,0 +1,163 @@
+﻿@page "/account"
+@using BlazorApp.Data
+@using BlazorApp.Entities
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore;
+
+@inject AuctionsDbContext  auctionsDbContext
+@inject AuthenticationStateProvider authenticationStateProvider
+
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item" style="color:black">
+                <a class="nav-link active" href="/account" style="color:black">Konto</a>
+            </li>
+            <li class="nav-item" style="color:black">
+                <a class="nav-link" href="/account/myauctions" style="color:black">Moje Aukcje</a>
+            </li>
+            <li class="nav-item" style="color:black">
+                <a class="nav-link" href="/account/purchasestory" style="color:black">Historia zakupów</a>
+            </li>
+        </ul>
+    </div>
+
+    @if (this.show)
+    {
+<div class="card-body">
+
+    <div class="mb-3 row">
+        <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">E-mail</label>
+        <div class="col-sm-5">
+            <input type="text" class="form-control" id="staticEmail" value="@infoUser.Email" readonly disabled>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">Imie</label>
+        <div class="col-sm-5">
+            <input type="text" class="form-control" id="staticEmail" value="@infoUser.FirstName" readonly disabled>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">Nazwisko</label>
+        <div class="col-sm-5">
+            <input type="text" class="form-control" id="staticEmail" value="@infoUser.LastName" readonly disabled>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">Data Urodzenia</label>
+        <div class="col-sm-5">
+            <input type="text" class="form-control" id="staticEmail" value="@infoUser.DateofBirth.Value.ToString("d")" readonly disabled>
+        </div>
+    </div>
+
+</div>
+        <div class="form-group col-md-6">
+            <button class="col-sm-3 btn btn-dark" @onclick="e=>this.show=!this.show" style="margin-top:10px;">Edytuj</button>
+        </div>
+    }
+    else
+    {
+<EditForm Model="user" OnValidSubmit="Edit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="card-body">
+
+        <h5>Edytuj swoje konto</h5>
+
+        <div class="mb-3 row">
+            <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">E-mail</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="staticEmail" @bind="@cloneUser.Email" placeholder="@cloneUser.Email" readonly disabled />
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">Imie</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="staticEmail" @bind="@cloneUser.FirstName" placeholder="@cloneUser.FirstName" />
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">Nazwisko</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="staticEmail" @bind="@cloneUser.LastName" placeholder="@cloneUser.LastName" />
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="staticEmail" class="col-form-label" style="width:150px; text-align:left">Data Urodzenia</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="staticEmail" @bind="@cloneUser.DateofBirth" placeholder="@cloneUser.DateofBirth.Value.ToString("d")" />
+            </div>
+        </div>
+
+    </div>
+
+    <div class="form-group col-md-6">
+        <button class="col-sm-3 btn btn-dark" @onsubmit="Edit" style="margin-top:10px; float:left">Zapisz</button>
+    </div>
+
+</EditForm>
+        <div class="form-group col-md-6">
+            <button class="col-sm-3 btn btn-dark" @onclick="CancelEdit" style="margin-top:10px;">Anuluj</button>
+        </div>
+    }
+
+</div>
+
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    ClaimsPrincipal user;
+    User infoUser;
+    User cloneUser;
+
+    bool show = true;
+    int uID;
+
+    protected override async Task OnInitializedAsync()
+    {
+        infoUser = new User();
+        cloneUser = new User();
+        show = true;
+        user = (await authenticationState).User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims.ToList();
+            var Id = claims[0].Value;
+            uID = int.Parse(Id);
+            infoUser = auctionsDbContext.Users.FirstOrDefault(p => p.Id == int.Parse(Id));
+            ChangeValue(infoUser, cloneUser);
+        }
+    }
+
+    public void Edit()
+    {
+        ChangeValue(cloneUser, infoUser);
+        auctionsDbContext.Update(infoUser);
+        auctionsDbContext.SaveChanges();
+        show = !show;
+    }
+
+    public void CancelEdit()
+    {
+        ChangeValue(infoUser, cloneUser);
+        show = !show;
+    }
+
+    public void ChangeValue(User from, User to)
+    {
+        to.Email = from.Email;
+        to.FirstName = from.FirstName;
+        to.DateofBirth = from.DateofBirth;
+        to.LastName = from.LastName;
+    }
+}
